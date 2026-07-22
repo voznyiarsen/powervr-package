@@ -1,0 +1,107 @@
+name: Build vgpu for PowerVR
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout powervr-package
+        uses: actions/checkout@v6
+
+      - name: Checkout llama.cpp (PowerVR fork)
+        uses: actions/checkout@v6
+        with:
+          repository: voznyiarsen/llama.cpp
+          path: ../llama.cpp-ggml-org
+          ref: master
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            python3 \
+            python3-pip \
+            python3-venv \
+            gcc-14 g++-14 \
+            libssl-dev \
+            ccache
+          echo "CC=gcc-14" >> "$GITHUB_ENV"
+          echo "CXX=g++-14" >> "$GITHUB_ENV"
+          echo "/usr/lib/ccache" >> "$GITHUB_PATH"
+
+      - name: Get latest Vulkan SDK version
+        id: vulkan_sdk_version
+        run: echo "VULKAN_SDK_VERSION=$(curl -s https://vulkan.lunarg.com/sdk/latest/linux.txt)" >> "$GITHUB_ENV"
+
+      - name: Cache Vulkan SDK
+        uses: actions/cache@v5
+        id: cache-sdk
+        with:
+          path: ./vulkan_sdk
+          key: vulkan-sdk-${{ env.VULKAN_SDK_VERSION }}-${{ runner.os }}
+
+      - name: Setup Vulkan SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          curl -sL "https://sdk.lunarg.com/sdk/download/${VULKAN_SDK_VERSION}/linux/vulkan_sdk.tar.xz" -o vulkan_sdk.tar.xz
+          mkdir -p vulkan_sdk
+          tar -xf vulkan_sdk.tar.xz -C vulkan_sdk --strip-components=1
+          rm vulkan_sdk.tar.xz
+
+      - name: Cache ccache
+        uses: actions/cache@v5
+        with:
+          path: ~/.ccache
+          key: ccache-${{ runner.os }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ runner.os }}-
+
+      - name: Source Vulkan SDK environment
+        run: |
+          source ./vulkan_sdk/setup-env.sh
+          echo "VULKAN_SDK=${VULKAN_SDK}" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=${VULKAN_SDK}/lib:${LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
+          echo "${VULKAN_SDK}/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        run: bash scripts/build.sh all
+
+      - name: Test
+        run: bash scripts/test.sh
+
+      - name: Package
+        run: bash scripts/package.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vgpu-release
+          path: release/
+
+      - name: Deploy to llama.cpp-4-PowerVR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git config --global user.name "PowerVR Build Bot"
+          git config --global user.email "bot@powervr.build"
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/voznyiarsen/llama.cpp-4-PowerVR.git" /tmp/output
+          cd /tmp/output
+          rm -rf ./*
+          cp -r "${{ github.workspace }}"/release/* .
+          git add -A
+          git diff --staged --quiet || git commit -m "Build $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          git push

@@ -1,0 +1,29 @@
+{
+  "name": "@powervr/vgpu",
+  "version": "1.0.0",
+  "description": "Unified vgpu + llama.cpp package: Vulkan GPU inference CLI with integrated llama.cpp backend",
+  "license": "MIT",
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "build:llama": "bash scripts/build.sh llama",
+    "build:vgpu": "bash scripts/build.sh vgpu",
+    "setup": "bash scripts/setup.sh",
+    "package": "bash scripts/package.sh",
+    "clean": "bash scripts/clean.sh",
+    "test": "bash scripts/test.sh"
+  },
+  "keywords": [
+    "llm",
+    "vulkan",
+    "gpu",
+    "inference",
+    "llama.cpp",
+    "ggml",
+    "powervr"
+  ],
+  "author": "PowerVR + llama.cpp contributors",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/voznyiarsen/llama.cpp-4-PowerVR.git"
+  }
+}

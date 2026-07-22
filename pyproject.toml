@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vgpu"
+version = "1.0.0"
+description = "Unified vgpu + llama.cpp: Vulkan GPU inference CLI with integrated llama.cpp backend"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "PowerVR + llama.cpp contributors"}
+]
+keywords = ["llm", "vulkan", "gpu", "inference", "llama.cpp", "ggml", "ollama"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Android",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.urls]
+Homepage = "https://github.com/voznyiarsen/vulkangpu"
+Documentation = "https://github.com/voznyiarsen/vulkangpu/blob/main/README.md"
+Repository = "https://github.com/voznyiarsen/vulkangpu.git"
+Issues = "https://github.com/voznyiarsen/vulkangpu/issues"
+
+[project.scripts]
+vgpu = "vgpu.cli:main"
+
+[tool.setuptools]
+packages = ["vgpu"]
+
+[tool.setuptools.package-data]
+vgpu = [
+    "gpu_probe.c",
+    "templates/*",
+    "models/*"
+]
+
+[tool.setuptools.exclude-packages]
+find = ["tests", "docs"]
+
+[tool.black]
+line-length = 100
+target-version = ["py37"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+addopts = "-v"
