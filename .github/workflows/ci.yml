@@ -16,15 +16,10 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout powervr-package
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
       - name: Checkout llama.cpp (PowerVR fork)
-        uses: actions/checkout@v6
-        with:
-          repository: voznyiarsen/llama.cpp
-          path: ../llama.cpp-ggml-org
-          ref: master
+        run: git clone --depth=1 https://github.com/voznyiarsen/llama.cpp.git ../llama.cpp-ggml-org
 
       - name: Install system dependencies
         run: |
