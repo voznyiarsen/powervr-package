@@ -10,7 +10,8 @@
     "setup": "bash scripts/setup.sh",
     "package": "bash scripts/package.sh",
     "clean": "bash scripts/clean.sh",
-    "test": "bash scripts/test.sh"
+    "test": "bash scripts/test.sh",
+    "install": "bash scripts/install.sh"
   },
   "keywords": [
     "llm",
@@ -24,6 +25,6 @@
   "author": "PowerVR + llama.cpp contributors",
   "repository": {
     "type": "git",
-    "url": "https://github.com/voznyiarsen/llama.cpp-4-PowerVR.git"
+    "url": "https://github.com/voznyiarsen/powervr-package.git"
   }
 }

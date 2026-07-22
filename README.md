@@ -3,19 +3,24 @@
 Unified Vulkan GPU inference package combining vgpu Python CLI with a
 PowerVR-optimized llama.cpp backend.
 
-## Quick Start
+## Install
 
 ```bash
-# Ensure dependencies are met
+curl -sSL https://raw.githubusercontent.com/voznyiarsen/powervr-package/main/scripts/install.sh | bash
+```
+
+Downloads the latest pre-built release and installs it to `~/.local/`.
+Add `~/.local/bin` to your `PATH` if not already there.
+
+Requires: Python 3.7+, Vulkan loader, and the Vulkan ICD for your GPU.
+
+## Build from Source
+
+```bash
+# Dependencies: cmake, python3, gcc/clang, libvulkan-dev, glslc
 bash scripts/setup.sh
-
-# Build everything (llama-server + Python CLI)
 bash scripts/build.sh all
-
-# Run tests
 bash scripts/test.sh
-
-# Package for distribution
 bash scripts/package.sh
 ```
 
